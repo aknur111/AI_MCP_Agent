@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      PRODUCTS_JSON_PATH: "${PRODUCTS_JSON_PATH:-/app/src/entrypoints/mcp_products_server/data/products.json}"
+      MCP_PRODUCTS_SERVER_PATH: "${MCP_PRODUCTS_SERVER_PATH:-/app/src/entrypoints/mcp_products_server/server.py}"
