@@ -1,18 +1,16 @@
-FROM python:3.11-slim
-
-WORKDIR /app
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-COPY pyproject.toml /app/pyproject.toml
+WORKDIR /app
 
-RUN pip install --no-cache-dir -U pip \
- && pip install --no-cache-dir .
+COPY pyproject.toml ./
+COPY src ./src
 
-COPY src /app/src
-COPY tests /app/tests
-COPY README.md /app/README.md
+RUN pip install --no-cache-dir -e .
+
+ENV PYTHONPATH=/app
 
 EXPOSE 8000
 

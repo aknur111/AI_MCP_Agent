@@ -1,13 +1,22 @@
 services:
-  app:
+  api:
     build: .
+    container_name: ai-mcp-agent-api
     ports:
       - "8000:8000"
     environment:
-      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      PRODUCTS_JSON_PATH: /app/data/products.json
+      ORDERS_JSON_PATH: /app/data/orders.json
 
-      PRODUCTS_JSON_PATH: "${PRODUCTS_JSON_PATH:-/app/src/entrypoints/mcp_products_server/data/products.json}"
-      MCP_PRODUCTS_SERVER_PATH: "${MCP_PRODUCTS_SERVER_PATH:-/app/src/entrypoints/mcp_products_server/server.py}"
+      MCP_PRODUCTS_SERVER_PATH: /app/src/entrypoints/mcp_products_server/server.py
+      MCP_ORDERS_SERVER_PATH: /app/src/entrypoints/mcp_orders_server/server.py
 
-      ORDERS_JSON_PATH: "${ORDERS_JSON_PATH:-/app/src/entrypoints/mcp_orders_server/data/orders.json}"
-      MCP_ORDERS_SERVER_PATH: "${MCP_ORDERS_SERVER_PATH:-/app/src/entrypoints/mcp_orders_server/server.py}"
+      LOG_LEVEL: INFO
+
+      DB_PATH: /app/data/app.db
+
+
+    volumes:
+      - ./data:/app/data
+    command: ["uvicorn", "src.entrypoints.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
