@@ -141,6 +141,24 @@ curl -X POST http://localhost:8000/api/v1/agent/query \
   -H "Content-Type: application/json" \
   -d '{"query":"Создай заказ: продукт 1, количество 2"}'
 ```
+
+### JSON режим (по умолчанию):
+```
+mkdir -p data
+echo "[]" > data/products.json
+echo "[]" > data/orders.json
+export PRODUCTS_JSON_PATH="$(pwd)/data/products.json"
+export ORDERS_JSON_PATH="$(pwd)/data/orders.json"
+uvicorn src.entrypoints.api.main:app --port 8000
+```
+
+### SQLite режим:
+```
+mkdir -p data
+export DB_PATH="$(pwd)/data/app.db"
+uvicorn src.entrypoints.api.main:app --port 8000
+```
+
 ### Автор проекта
 
 - Салемкан Акнур
