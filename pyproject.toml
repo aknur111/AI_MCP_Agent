@@ -21,7 +21,9 @@ dev = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-pythonpath = ["src"]
+pythonpath = ["."]
+testpaths = ["tests"]
+
 
 [tool.ruff]
 line-length = 100

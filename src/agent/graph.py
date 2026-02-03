@@ -7,11 +7,6 @@ from src.agent.orchestrator import AgentOrchestrator
 
 
 def build_graph(orchestrator: AgentOrchestrator):
-    """
-    Build a small LangGraph workflow:
-
-    START -> route -> (execute | help) -> END
-    """
     g = StateGraph(AgentState)
 
     g.add_node("route", orchestrator.route)
@@ -31,3 +26,13 @@ def build_graph(orchestrator: AgentOrchestrator):
     g.add_edge("help", END)
 
     return g.compile()
+
+def choose_next(state):
+    intent = state.get("intent", "HELP")
+    if intent in {
+        "LIST", "LIST_BY_CATEGORY", "STATS", "ADD", "DISCOUNT",
+        "ORDER_CREATE", "ORDER_LIST", "ORDER_GET", "ORDER_STATS"
+    }:
+        return "execute"
+    return "help"
+

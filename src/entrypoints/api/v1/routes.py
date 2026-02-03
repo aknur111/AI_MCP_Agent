@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from src.entrypoints.api.v1.schemas import AgentQueryRequest, AgentQueryResponse
-from src.entrypoints.api.main import get_agent_service
+from src.entrypoints.api.deps import get_agent_service
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 

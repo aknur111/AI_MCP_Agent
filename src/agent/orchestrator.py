@@ -4,14 +4,14 @@ from src.adapters.llm_mock.rule_llm import RuleBasedLLM
 from src.domain.formatting import format_product, format_products, format_statistics
 from src.domain.pricing import apply_discount
 from src.ports.products import ProductsPort
+from src.ports.orders import OrdersPort
 from src.agent.state import AgentState
 
 
 class AgentOrchestrator:
-    """Implements routing + tool execution for LangGraph nodes."""
-
-    def __init__(self, products: ProductsPort, llm: RuleBasedLLM) -> None:
+    def __init__(self, products: ProductsPort, orders: OrdersPort, llm: RuleBasedLLM) -> None:
         self.products = products
+        self.orders = orders
         self.llm = llm
 
     def route(self, state: AgentState) -> dict:
@@ -45,7 +45,7 @@ class AgentOrchestrator:
                     category=str(args["category"]),
                     in_stock=bool(args.get("in_stock", True)),
                 )
-                return {"answer": f"Добавлено ✅\n{format_product(p)}"}
+                return {"answer": f"Добавлено\n{format_product(p)}"}
 
             if intent == "DISCOUNT":
                 product_id = int(args["product_id"])
@@ -60,6 +60,31 @@ class AgentOrchestrator:
                     )
                 }
 
+            if intent == "ORDER_CREATE":
+                created = await self.orders.create_order(
+                    product_id=int(args["product_id"]),
+                    quantity=int(args["quantity"]),
+                )
+                return {"answer": f"Заказ создан\n{created}"}
+
+            if intent == "ORDER_LIST":
+                orders = await self.orders.list_orders()
+                if not orders:
+                    return {"answer": "Заказов пока нет."}
+                lines = ["ID | product_id | qty | status", "---|---:|---:|---"]
+                for o in orders:
+                    lines.append(f'{o.get("id")} | {o.get("product_id")} | {o.get("quantity")} | {o.get("status")}')
+                return {"answer": "\n".join(lines)}
+
+            if intent == "ORDER_GET":
+                order_id = int(args["order_id"])
+                order = await self.orders.get_order(order_id)
+                return {"answer": f"Заказ #{order_id}:\n{order}"}
+
+            if intent == "ORDER_STATS":
+                stats = await self.orders.get_orders_statistics()
+                return {"answer": f"Статистика заказов:\n{stats}"}
+
             return self.help(state)
 
         except Exception as e:
@@ -69,9 +94,15 @@ class AgentOrchestrator:
         return {
             "answer": (
                 "Я умею:\n"
-                "1) Показать продукты: «Покажи продукты» или «Покажи продукты в категории Электроника»\n"
-                "2) Статистика: «Какая средняя цена продуктов?»\n"
-                "3) Добавить: «Добавь новый продукт: Мышка, цена 1500, категория Электроника»\n"
-                "4) Скидка: «Посчитай скидку 15% на товар с ID 1»"
+                "— Продукты:\n"
+                "  1) «Покажи продукты» / «Покажи продукты в категории Электроника»\n"
+                "  2) «Какая средняя цена продуктов?»\n"
+                "  3) «Добавь новый продукт: Мышка, цена 1500, категория Электроника»\n"
+                "  4) «Посчитай скидку 15% на товар с ID 1»\n"
+                "— Заказы:\n"
+                "  5) «Создай заказ: продукт 1, количество 2»\n"
+                "  6) «Покажи заказы»\n"
+                "  7) «Статистика заказов»\n"
+                "  8) «Покажи заказ 1»"
             )
         }

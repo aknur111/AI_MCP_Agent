@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Faster, cleaner installs
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 

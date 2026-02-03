@@ -13,18 +13,12 @@ mcp = FastMCP(name="Products MCP Server")
 
 
 def _get_storage() -> JsonProductsStorage:
-    """
-    Storage is selected by env var PRODUCTS_JSON_PATH.
-
-    This allows switching to SQLite later without changing agent/API.
-    """
     path = Path(os.getenv("PRODUCTS_JSON_PATH", str(Path(__file__).parent / "data/products.json")))
     return JsonProductsStorage(path)
 
 
 @mcp.tool
 def list_products() -> list[dict[str, Any]]:
-    """Получить список всех продуктов."""
     storage = _get_storage()
     products = storage.load()
     return [p.model_dump() for p in products]
@@ -32,12 +26,6 @@ def list_products() -> list[dict[str, Any]]:
 
 @mcp.tool
 def get_product(product_id: int) -> dict[str, Any]:
-    """
-    Найти продукт по ID.
-
-    Raises:
-        ValueError: если продукт не найден
-    """
     storage = _get_storage()
     products = storage.load()
     for p in products:
@@ -48,7 +36,6 @@ def get_product(product_id: int) -> dict[str, Any]:
 
 @mcp.tool
 def add_product(name: str, price: float, category: str, in_stock: bool = True) -> dict[str, Any]:
-    """Добавить новый продукт и вернуть его."""
     storage = _get_storage()
     products = storage.load()
     next_id = (max([p.id for p in products], default=0) + 1)
@@ -60,7 +47,6 @@ def add_product(name: str, price: float, category: str, in_stock: bool = True) -
 
 @mcp.tool
 def get_statistics() -> dict[str, Any]:
-    """Получить статистику по продуктам: количество и средняя цена."""
     storage = _get_storage()
     products = storage.load()
     count = len(products)
@@ -70,5 +56,4 @@ def get_statistics() -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    # Default transport is stdio, perfect for subprocess-based clients.
     mcp.run()

@@ -8,8 +8,6 @@ from src.domain.models import Product
 
 
 class JsonProductsStorage:
-    """Simple JSON-file storage for products (used inside MCP server)."""
-
     def __init__(self, path: Path) -> None:
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)

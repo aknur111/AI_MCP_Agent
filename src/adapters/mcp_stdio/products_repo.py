@@ -12,12 +12,6 @@ from src.ports.products import ProductsPort
 
 
 class MCPProductsRepo(ProductsPort):
-    """
-    Products repository implemented via MCP STDIO calls.
-
-    It launches MCP server as a subprocess (stdio transport) and calls tools.
-    """
-
     def __init__(self, server_path: Path, env: dict[str, str] | None = None) -> None:
         self._lock = asyncio.Lock()
         transport = StdioTransport(
